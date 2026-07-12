@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: transitops-db
+    environment:
+      - POSTGRES_DB=transitops
+      - POSTGRES_USER=transitops
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-transitops_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U transitops -d transitops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   server:
     build:
       context: ./server
@@ -11,12 +28,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - DATABASE_URL=file:./dev.db
-      - JWT_SECRET=TransitOps_Super_Secret_Key_For_Hackathon
+      - DATABASE_URL=file:/app/data/dev.db
       - CLIENT_URL=http://localhost:3000
       - COOKIE_SECURE=false
+      - JWT_SECRET=TransitOps_Super_Secret_Key_For_Hackathon
     volumes:
-      - server_data:/app/prisma
+      - server_data:/app/data
 
   client:
     build:
@@ -31,4 +48,5 @@ services:
       - server
 
 volumes:
+  postgres_data:
   server_data:

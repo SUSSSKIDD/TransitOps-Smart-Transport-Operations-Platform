@@ -15,7 +15,12 @@ export const validate = (schemas: ValidateSchemaShape) =>
         req.body = schemas.body.parse(req.body)
       }
       if (schemas.query) {
-        req.query = schemas.query.parse(req.query) as typeof req.query
+        Object.defineProperty(req, 'query', {
+          value: schemas.query.parse(req.query),
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        })
       }
       if (schemas.params) {
         // params are read-only in Express — we validate but don't reassign
