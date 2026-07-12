@@ -10,7 +10,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // If the server returns 401 Unauthorized, automatically log the user out
-    if (error.response?.status === 401) {
+    // EXCEPT if the request was to /auth/logout, to prevent an infinite loop
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/logout')) {
       useAuthStore.getState().logout()
     }
     return Promise.reject(error)
