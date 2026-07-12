@@ -4,10 +4,7 @@ import { driverRepo } from '../drivers/driver.repository'
 import { CreateTripInput, ListTripQuery, CompleteTripInput } from './trips.schema'
 import { NotFoundError, BusinessRuleError } from '../../utils/errors'
 import { logger } from '../../utils/logger'
-import { TripStatus    } from '@prisma/client'
-import { TripStatus } from ''
-import { DriverStatus } from ''
-import { VehicleStatus } from ''
+import { TripStatus, DriverStatus, VehicleStatus } from '../../types/enums'
 import { prisma } from '../../db'
 import { FLAT_RATE_PER_KM } from '../../config/constants'
 
@@ -67,9 +64,9 @@ export const tripsService = {
         throw new BusinessRuleError('Driver is no longer AVAILABLE')
       }
 
-      await vehicleRepo.updateStatus(trip.vehicleId.ON_TRIP, tx)
-      await driverRepo.updateStatus(trip.driverId.ON_TRIP, tx)
-      const updatedTrip = await tripRepo.updateStatus(id.DISPATCHED, { dispatchedAt: new Date() }, tx)
+      await vehicleRepo.updateStatus(trip.vehicleId, VehicleStatus.ON_TRIP, tx)
+      await driverRepo.updateStatus(trip.driverId, DriverStatus.ON_TRIP, tx)
+      const updatedTrip = await tripRepo.updateStatus(id, TripStatus.DISPATCHED, { dispatchedAt: new Date() }, tx)
 
       logger.info('AUDIT: trip_dispatched', {
         event: 'trip_dispatched',
@@ -103,15 +100,15 @@ export const tripsService = {
       await vehicleRepo.update(
         trip.vehicleId,
         {
-          status: VehicleStatus.AVAILABLE, // Assuming it becomes available (unless retired during trip, which is prevented)
+          status: VehicleStatus.AVAILABLE,
           odometer: vehicle.odometer + input.actualDistance,
         },
         tx
       )
 
-      await driverRepo.updateStatus(trip.driverId.AVAILABLE, tx)
+      await driverRepo.updateStatus(trip.driverId, DriverStatus.AVAILABLE, tx)
 
-      const updatedTrip = await tripRepo.updateStatus(id.COMPLETED, {
+      const updatedTrip = await tripRepo.updateStatus(id, TripStatus.COMPLETED, {
         actualDistance: input.actualDistance,
         fuelConsumed: input.fuelConsumed,
         revenue,
@@ -142,11 +139,11 @@ export const tripsService = {
       }
 
       if (trip.status === TripStatus.DISPATCHED) {
-        await vehicleRepo.updateStatus(trip.vehicleId.AVAILABLE, tx)
-        await driverRepo.updateStatus(trip.driverId.AVAILABLE, tx)
+        await vehicleRepo.updateStatus(trip.vehicleId, VehicleStatus.AVAILABLE, tx)
+        await driverRepo.updateStatus(trip.driverId, DriverStatus.AVAILABLE, tx)
       }
 
-      const updatedTrip = await tripRepo.updateStatus(id.CANCELLED, {}, tx)
+      const updatedTrip = await tripRepo.updateStatus(id, TripStatus.CANCELLED, {}, tx)
 
       logger.info('AUDIT: trip_cancelled', {
         event: 'trip_cancelled',

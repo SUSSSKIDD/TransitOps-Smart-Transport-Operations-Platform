@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import Link from "next/next/link"
+import Link from "next/link"
 import { useAuthStore } from "@/store/useAuthStore"
 import { 
   Bus, 

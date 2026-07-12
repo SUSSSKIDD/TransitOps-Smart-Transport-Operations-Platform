@@ -7,8 +7,8 @@ export const DEFAULT_PAGE_SIZE        = 20
 export const MAX_PAGE_SIZE            = 100
 
 // ── Business Rules ────────────────────────────────────────────────────
-export const FLAT_RATE_PER_KM         = 50   // ₹50/km — default revenue if not entered at trip completion (documented assumption)
-export const LICENSE_EXPIRY_WARNING_DAYS = 30 // banner threshold for expiring driver licenses
+export const FLAT_RATE_PER_KM         = 50   // ₹50/km — default revenue if not entered at trip completion
+export const LICENSE_EXPIRY_WARNING_DAYS = 30
 export const SAFETY_SCORE_DEFAULT     = 100
 
 // ── Security ─────────────────────────────────────────────────────────
@@ -18,3 +18,6 @@ export const LOGIN_RATE_LIMIT_MAX     = 10
 
 // ── Infra ─────────────────────────────────────────────────────────────
 export const GRACEFUL_SHUTDOWN_TIMEOUT = 10_000  // 10s force-exit on shutdown
+
+// ── Health Check ──────────────────────────────────────────────────────
+export const HEALTH_CHECK_QUERY       = 'SELECT 1'

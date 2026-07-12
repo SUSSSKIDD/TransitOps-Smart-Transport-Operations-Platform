@@ -1,10 +1,9 @@
-import { Role  } from '@prisma/client'
-import { Role } from '../../types/enums'
+import { Role } from '../types/enums'
 
 type Resource = 'vehicle' | 'driver' | 'trip' | 'maintenance' | 'expense' | 'report'
 type Action   = 'create' | 'read' | 'update' | 'delete'
 
-export const PERMISSIONS: Record< Record<Resource, Action[]>> = {
+export const PERMISSIONS: Record<Role, Record<Resource, Action[]>> = {
   FLEET_MANAGER: {
     vehicle:     ['create', 'read', 'update', 'delete'],
     driver:      ['create', 'read', 'update', 'delete'],
@@ -39,6 +38,6 @@ export const PERMISSIONS: Record< Record<Resource, Action[]>> = {
   },
 }
 
-export function can(role:  resource: Resource, action: Action): boolean {
+export function can(role: Role, resource: Resource, action: Action): boolean {
   return PERMISSIONS[role]?.[resource]?.includes(action) ?? false
 }

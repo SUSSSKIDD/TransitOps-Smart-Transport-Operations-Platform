@@ -3,8 +3,7 @@ import { maintenanceController } from './maintenance.controller'
 import { authenticate } from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
 import { validate } from '../../middleware/validate'
-import { Role  } from '@prisma/client'
-import { Role } from ''
+import { Role } from '../../types/enums'
 import { CreateMaintenanceSchema, CloseMaintenanceSchema, ListMaintenanceSchema } from './maintenance.schema'
 
 const router = Router()

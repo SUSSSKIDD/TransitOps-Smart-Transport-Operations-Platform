@@ -1,8 +1,9 @@
-import { PrismaClient     } from '@prisma/client'
-import { TripStatus } from '../src/types/enums'
-import { DriverStatus } from '../src/types/enums'
-import { VehicleStatus } from '../src/types/enums'
-import { Role } from '../src/types/enums'
+import { Role, VehicleStatus, DriverStatus, TripStatus } from '../src/types/enums';
+import { PrismaClient } from '@prisma/client'
+
+
+
+
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()

@@ -5,7 +5,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { api } from "@/lib/axios"
-import { Bus, Truck, Tool, CheckCircle, Activity, BarChart3, AlertCircle } from "lucide-react"
+import { Bus, Truck, Wrench, CheckCircle, Activity, BarChart3, AlertCircle } from "lucide-react"
 import { format } from "date-fns"
 
 export default function DashboardPage() {
@@ -45,7 +45,7 @@ export default function DashboardPage() {
   const statCards = [
     { title: "Vehicles Available", value: kpis.AVAILABLE, icon: Bus, color: "text-blue-500", bg: "bg-blue-100 dark:bg-blue-900/30" },
     { title: "Active Trips", value: kpis.ON_TRIP, icon: Truck, color: "text-green-500", bg: "bg-green-100 dark:bg-green-900/30" },
-    { title: "In Maintenance", value: kpis.IN_SHOP, icon: Tool, color: "text-amber-500", bg: "bg-amber-100 dark:bg-amber-900/30" },
+    { title: "In Maintenance", value: kpis.IN_SHOP, icon: Wrench, color: "text-amber-500", bg: "bg-amber-100 dark:bg-amber-900/30" },
     { title: "Fleet Utilization", value: `${Math.round(kpis.fleetUtilization)}%`, icon: BarChart3, color: "text-purple-500", bg: "bg-purple-100 dark:bg-purple-900/30" },
   ]
 

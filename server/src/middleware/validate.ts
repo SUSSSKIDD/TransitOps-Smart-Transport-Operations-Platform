@@ -24,7 +24,7 @@ export const validate = (schemas: ValidateSchemaShape) =>
       next()
     } catch (err) {
       if (err instanceof ZodError) {
-        const messages = err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('; ')
+        const messages = err.issues.map(e => `${e.path.join('.')}: ${e.message}`).join('; ')
         next(new ValidationError(messages))
       } else {
         next(err)

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Prisma } from '@prisma/client'
-import { AppError, ConflictError, ValidationError } from '../utils/errors'
+import { AppError } from '../utils/errors'
 import { sendError } from '../utils/response'
 import { logger } from '../utils/logger'
 import { ZodError } from 'zod'
@@ -13,7 +13,7 @@ export const errorMiddleware = (
 ): void => {
   // Zod errors (shouldn't normally reach here if validate middleware is used, but as safety net)
   if (err instanceof ZodError) {
-    const messages = err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('; ')
+    const messages = err.issues.map(e => `${e.path.join('.')}: ${e.message}`).join('; ')
     sendError(res, messages, 'VALIDATION_ERROR', 422)
     return
   }

@@ -3,8 +3,7 @@ import { vehiclesController } from './vehicles.controller'
 import { authenticate } from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
 import { validate } from '../../middleware/validate'
-import { Role  } from '@prisma/client'
-import { Role } from ''
+import { Role } from '../../types/enums'
 import { CreateVehicleSchema, UpdateVehicleSchema, ListVehicleSchema, GetByIdSchema } from './vehicles.schema'
 
 const router = Router()

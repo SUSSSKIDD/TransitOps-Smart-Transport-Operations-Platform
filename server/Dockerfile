@@ -3,6 +3,8 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
+RUN apk add --no-cache openssl
+
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -23,6 +25,8 @@ RUN npm run build
 FROM node:24-alpine AS runner
 
 WORKDIR /app
+
+RUN apk add --no-cache openssl
 
 # Set node environment
 ENV NODE_ENV=production

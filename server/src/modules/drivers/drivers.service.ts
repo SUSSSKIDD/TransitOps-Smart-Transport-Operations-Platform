@@ -2,8 +2,7 @@ import { driverRepo } from './driver.repository'
 import { CreateDriverInput, ListDriverQuery, UpdateDriverInput } from './drivers.schema'
 import { NotFoundError, ConflictError } from '../../utils/errors'
 import { logger } from '../../utils/logger'
-import { DriverStatus  } from '@prisma/client'
-import { DriverStatus } from ''
+import { DriverStatus } from '../../types/enums'
 
 export const driversService = {
   async list(query: ListDriverQuery) {
@@ -37,7 +36,7 @@ export const driversService = {
     const driver = await this.getById(id)
     if (driver.status === DriverStatus.SUSPENDED) return driver
     
-    const updated = await driverRepo.updateStatus(id.SUSPENDED)
+    const updated = await driverRepo.updateStatus(id, DriverStatus.SUSPENDED)
     
     logger.info('AUDIT: driver_suspended', {
       event: 'driver_suspended',

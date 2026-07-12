@@ -4,6 +4,7 @@ import { signToken } from '../../utils/jwt'
 import { AuthenticationError, NotFoundError } from '../../utils/errors'
 import { logger } from '../../utils/logger'
 import { LoginInput } from './auth.schema'
+import { Role } from '../../types/enums'
 
 export const authService = {
   async login(input: LoginInput, ip?: string) {
@@ -13,7 +14,7 @@ export const authService = {
     const valid = await bcrypt.compare(input.password, user.passwordHash)
     if (!valid) throw new AuthenticationError('Invalid email or password')
 
-    const token = signToken({ id: user.id, email: user.email, role: user.role })
+    const token = signToken({ id: user.id, email: user.email, role: user.role as Role })
 
     logger.info('AUDIT: user_login', {
       event: 'user_login',

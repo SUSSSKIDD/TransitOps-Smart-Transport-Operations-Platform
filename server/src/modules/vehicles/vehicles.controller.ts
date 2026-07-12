@@ -11,7 +11,7 @@ export const vehiclesController = {
   }),
 
   getById: asyncHandler(async (req: Request, res: Response) => {
-    const vehicle = await vehiclesService.getById(req.params.id)
+    const vehicle = await vehiclesService.getById(req.params.id as string)
     sendSuccess(res, vehicle, 'Vehicle retrieved')
   }),
 
@@ -26,12 +26,12 @@ export const vehiclesController = {
   }),
 
   update: asyncHandler(async (req: Request, res: Response) => {
-    const vehicle = await vehiclesService.update(req.params.id, req.body, req.user.id)
+    const vehicle = await vehiclesService.update(req.params.id as string, req.body, req.user.id)
     sendSuccess(res, vehicle, 'Vehicle updated')
   }),
 
   retire: asyncHandler(async (req: Request, res: Response) => {
-    const vehicle = await vehiclesService.retire(req.params.id, req.user.id)
+    const vehicle = await vehiclesService.retire(req.params.id as string, req.user.id)
     sendSuccess(res, vehicle, 'Vehicle retired')
   }),
 }

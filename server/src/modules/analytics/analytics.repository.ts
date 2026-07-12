@@ -3,14 +3,17 @@ import { prisma } from '../../db'
 
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
+type VehicleStatusKey = 'AVAILABLE' | 'ON_TRIP' | 'IN_SHOP' | 'RETIRED'
+type TripStatusKey    = 'DRAFT' | 'DISPATCHED' | 'COMPLETED' | 'CANCELLED'
+
 export const analyticsRepo = {
   getVehicleCounts: async (tx?: Tx) => {
     const counts = await (tx ?? prisma).vehicle.groupBy({
       by: ['status'],
       _count: true,
     })
-    const result = { AVAILABLE: 0, ON_TRIP: 0, IN_SHOP: 0, RETIRED: 0 }
-    counts.forEach(c => { result[c.status] = c._count })
+    const result: Record<VehicleStatusKey, number> = { AVAILABLE: 0, ON_TRIP: 0, IN_SHOP: 0, RETIRED: 0 }
+    counts.forEach(c => { result[c.status as VehicleStatusKey] = c._count })
     return result
   },
 
@@ -19,8 +22,8 @@ export const analyticsRepo = {
       by: ['status'],
       _count: true,
     })
-    const result = { DRAFT: 0, DISPATCHED: 0, COMPLETED: 0, CANCELLED: 0 }
-    counts.forEach(c => { result[c.status] = c._count })
+    const result: Record<TripStatusKey, number> = { DRAFT: 0, DISPATCHED: 0, COMPLETED: 0, CANCELLED: 0 }
+    counts.forEach(c => { result[c.status as TripStatusKey] = c._count })
     return result
   },
 
@@ -41,7 +44,6 @@ export const analyticsRepo = {
     const startDate = new Date()
     startDate.setMonth(startDate.getMonth() - months)
     
-    // Using raw query for SQLite date truncation since Prisma doesn't support it natively yet
     const fuelCosts = await (tx ?? prisma).$queryRaw`
       SELECT strftime('%Y-%m', datetime(date/1000, 'unixepoch')) as month, SUM(cost) as total
       FROM FuelLog
@@ -66,7 +68,6 @@ export const analyticsRepo = {
       ORDER BY month ASC
     ` as any[]
 
-    // Combine into a single map
     const combined = new Map<string, { month: string, fuel: number, maintenance: number, expenses: number }>()
     
     const addToCombined = (data: any[], key: 'fuel' | 'maintenance' | 'expenses') => {
@@ -85,7 +86,6 @@ export const analyticsRepo = {
   },
 
   getTopCostVehicles: async (limit: number, tx?: Tx) => {
-    // Top vehicles by maintenance + fuel + expenses
     const rows = await (tx ?? prisma).$queryRaw`
       SELECT v.id, v.registrationNumber, v.name, v.type,
              (COALESCE(SUM(f.cost), 0) + COALESCE(SUM(m.cost), 0) + COALESCE(SUM(e.amount), 0)) as totalCost

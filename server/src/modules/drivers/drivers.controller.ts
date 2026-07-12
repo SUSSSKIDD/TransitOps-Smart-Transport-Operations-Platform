@@ -11,7 +11,7 @@ export const driversController = {
   }),
 
   getById: asyncHandler(async (req: Request, res: Response) => {
-    const driver = await driversService.getById(req.params.id)
+    const driver = await driversService.getById(req.params.id as string)
     sendSuccess(res, driver, 'Driver retrieved')
   }),
 
@@ -26,12 +26,12 @@ export const driversController = {
   }),
 
   update: asyncHandler(async (req: Request, res: Response) => {
-    const driver = await driversService.update(req.params.id, req.body, req.user.id)
+    const driver = await driversService.update(req.params.id as string, req.body, req.user.id)
     sendSuccess(res, driver, 'Driver updated')
   }),
 
   suspend: asyncHandler(async (req: Request, res: Response) => {
-    const driver = await driversService.suspend(req.params.id, req.user.id)
+    const driver = await driversService.suspend(req.params.id as string, req.user.id)
     sendSuccess(res, driver, 'Driver suspended')
   }),
 }

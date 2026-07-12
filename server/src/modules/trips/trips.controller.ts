@@ -11,7 +11,7 @@ export const tripsController = {
   }),
 
   getById: asyncHandler(async (req: Request, res: Response) => {
-    const trip = await tripsService.getById(req.params.id)
+    const trip = await tripsService.getById(req.params.id as string)
     sendSuccess(res, trip, 'Trip retrieved')
   }),
 
@@ -21,17 +21,17 @@ export const tripsController = {
   }),
 
   dispatch: asyncHandler(async (req: Request, res: Response) => {
-    const trip = await tripsService.dispatch(req.params.id, req.user.id)
+    const trip = await tripsService.dispatch(req.params.id as string, req.user.id)
     sendSuccess(res, trip, 'Trip dispatched successfully')
   }),
 
   complete: asyncHandler(async (req: Request, res: Response) => {
-    const trip = await tripsService.complete(req.params.id, req.body, req.user.id)
+    const trip = await tripsService.complete(req.params.id as string, req.body, req.user.id)
     sendSuccess(res, trip, 'Trip completed successfully')
   }),
 
   cancel: asyncHandler(async (req: Request, res: Response) => {
-    const trip = await tripsService.cancel(req.params.id, req.user.id)
+    const trip = await tripsService.cancel(req.params.id as string, req.user.id)
     sendSuccess(res, trip, 'Trip cancelled')
   }),
 }

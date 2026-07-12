@@ -3,8 +3,7 @@ import { vehicleRepo } from '../vehicles/vehicle.repository'
 import { CreateMaintenanceInput, ListMaintenanceQuery } from './maintenance.schema'
 import { NotFoundError, BusinessRuleError } from '../../utils/errors'
 import { logger } from '../../utils/logger'
-import { VehicleStatus  } from '@prisma/client'
-import { VehicleStatus } from ''
+import { VehicleStatus } from '../../types/enums'
 import { prisma } from '../../db'
 
 export const maintenanceService = {
@@ -22,7 +21,7 @@ export const maintenanceService = {
       }
 
       const log = await maintenanceRepo.create(input, tx)
-      await vehicleRepo.updateStatus(input.vehicleId.IN_SHOP, tx)
+      await vehicleRepo.updateStatus(input.vehicleId, VehicleStatus.IN_SHOP, tx)
 
       logger.info('AUDIT: maintenance_opened', {
         event: 'maintenance_opened',
@@ -50,7 +49,7 @@ export const maintenanceService = {
       const updatedLog = await maintenanceRepo.updateStatus(id, false, tx)
 
       if (vehicle.status !== VehicleStatus.RETIRED) {
-        await vehicleRepo.updateStatus(log.vehicleId.AVAILABLE, tx)
+        await vehicleRepo.updateStatus(log.vehicleId, VehicleStatus.AVAILABLE, tx)
       }
 
       logger.info('AUDIT: maintenance_closed', {

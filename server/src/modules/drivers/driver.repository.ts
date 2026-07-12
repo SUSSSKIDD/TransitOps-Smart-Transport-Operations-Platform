@@ -1,5 +1,5 @@
-import { Prisma, PrismaClient  } from '@prisma/client'
-import { DriverStatus } from ''
+import { Prisma, PrismaClient } from '@prisma/client'
+import { DriverStatus } from '../../types/enums'
 import { prisma } from '../../db'
 import { CreateDriverInput, ListDriverQuery, UpdateDriverInput } from './drivers.schema'
 
@@ -12,37 +12,29 @@ export const driverRepo = {
   findByLicense: (licenseNumber: string, tx?: Tx) =>
     (tx ?? prisma).driver.findUnique({ where: { licenseNumber } }),
 
-  findMany: async (query: ListDriverQuery) => {
-    const { page, limit, search, status, sortBy, order } = query
-    const where: Prisma.DriverWhereInput = {
-      ...(search && {
-        OR: [
-          { name: { contains: search } },
-          { licenseNumber: { contains: search } },
-        ],
-      }),
-      ...(status && { status }),
+  findDispatchable: (tx?: Tx) =>
+    (tx ?? prisma).driver.findMany({
+      where: { status: DriverStatus.AVAILABLE },
+      orderBy: { name: 'asc' },
+    }),
+
+  findMany: async (query: ListDriverQuery, tx?: Tx) => {
+    const { page = 1, limit = 20, status, search } = query
+    const where: Prisma.DriverWhereInput = {}
+    if (status) where.status = status
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { licenseNumber: { contains: search } },
+      ]
     }
+    const skip = (page - 1) * limit
     const [data, total] = await Promise.all([
-      prisma.driver.findMany({
-        where,
-        orderBy: { [sortBy]: order },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.driver.count({ where }),
+      (tx ?? prisma).driver.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      (tx ?? prisma).driver.count({ where }),
     ])
     return { data, total }
   },
-
-  findDispatchable: (tx?: Tx) =>
-    (tx ?? prisma).driver.findMany({
-      where: {
-        status: DriverStatus.AVAILABLE,
-        licenseExpiryDate: { gt: new Date() }, // license must not be expired
-      },
-      orderBy: { name: 'asc' },
-    }),
 
   create: (data: CreateDriverInput, tx?: Tx) =>
     (tx ?? prisma).driver.create({ data }),
@@ -50,6 +42,6 @@ export const driverRepo = {
   update: (id: string, data: UpdateDriverInput | Prisma.DriverUpdateInput, tx?: Tx) =>
     (tx ?? prisma).driver.update({ where: { id }, data }),
 
-  updateStatus: (id: string, status:  tx?: Tx) =>
+  updateStatus: (id: string, status: DriverStatus, tx?: Tx) =>
     (tx ?? prisma).driver.update({ where: { id }, data: { status } }),
 }

@@ -16,7 +16,7 @@ export const maintenanceController = {
   }),
 
   close: asyncHandler(async (req: Request, res: Response) => {
-    const log = await maintenanceService.close(req.params.id, req.user.id)
+    const log = await maintenanceService.close(req.params.id as string, req.user.id)
     sendSuccess(res, log, 'Maintenance log closed')
   }),
 }

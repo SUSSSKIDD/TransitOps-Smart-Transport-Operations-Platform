@@ -2,8 +2,7 @@ import { vehicleRepo } from './vehicle.repository'
 import { CreateVehicleInput, ListVehicleQuery, UpdateVehicleInput } from './vehicles.schema'
 import { NotFoundError, ConflictError } from '../../utils/errors'
 import { logger } from '../../utils/logger'
-import { VehicleStatus  } from '@prisma/client'
-import { VehicleStatus } from ''
+import { VehicleStatus } from '../../types/enums'
 
 export const vehiclesService = {
   async list(query: ListVehicleQuery) {
@@ -24,14 +23,7 @@ export const vehiclesService = {
     const existing = await vehicleRepo.findByRegNum(input.registrationNumber)
     if (existing) throw new ConflictError('A vehicle with this registration number already exists')
     
-    const vehicle = await vehicleRepo.create(input)
-    
-    logger.info('AUDIT: vehicle_created', {
-      event: 'vehicle_created',
-      vehicleId: vehicle.id,
-      actorId,
-    })
-    return vehicle
+    return vehicleRepo.create(input)
   },
 
   async update(id: string, input: UpdateVehicleInput, actorId: string) {
@@ -43,7 +35,7 @@ export const vehiclesService = {
     const vehicle = await this.getById(id)
     if (vehicle.status === VehicleStatus.RETIRED) return vehicle
     
-    const updated = await vehicleRepo.updateStatus(id.RETIRED)
+    const updated = await vehicleRepo.updateStatus(id, VehicleStatus.RETIRED)
     
     logger.info('AUDIT: vehicle_retired', {
       event: 'vehicle_retired',
