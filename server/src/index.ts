@@ -111,7 +111,7 @@ function startLicenseExpiryJob() {
           },
           status: { not: DriverStatus.SUSPENDED },
         },
-        select: { id: true, name: true, licenseNumber: true, licenseExpiryDate: true, email: true },
+        select: { id: true, name: true, licenseNumber: true, licenseExpiryDate: true },
       })
       
       if (expiringDrivers.length > 0) {

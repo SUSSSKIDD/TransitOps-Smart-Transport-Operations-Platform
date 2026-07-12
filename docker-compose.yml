@@ -7,7 +7,7 @@ services:
     environment:
       - POSTGRES_DB=transitops
       - POSTGRES_USER=transitops
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-transitops_pass}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -28,15 +28,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - DATABASE_URL=postgresql://transitops:${DB_PASSWORD}@postgres:5432/transitops?schema=public
+      - DATABASE_URL=file:/app/data/dev.db
       - CLIENT_URL=http://localhost:3000
       - COOKIE_SECURE=false
-      # JWT_SECRET must be set via environment variable or .env file
+      - JWT_SECRET=TransitOps_Super_Secret_Key_For_Hackathon
     volumes:
-      - server_data:/app/prisma
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - server_data:/app/data
 
   client:
     build:

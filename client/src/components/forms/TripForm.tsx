@@ -60,8 +60,8 @@ export function TripForm({ onSuccess, initialData: initialDataProp, isEditing = 
           api.get("/vehicles/dispatchable"),
           api.get("/drivers/dispatchable"),
         ])
-        setVehicles(vRes.data)
-        setDrivers(dRes.data)
+        setVehicles(vRes.data.data)
+        setDrivers(dRes.data.data)
       } catch {
         toast.error("Failed to load vehicles/drivers")
       }

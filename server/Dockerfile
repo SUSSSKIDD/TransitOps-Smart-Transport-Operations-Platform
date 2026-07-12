@@ -45,6 +45,6 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/scripts ./scripts
 
 # Run migrations at startup, then start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm run start"]
 
 EXPOSE 4000

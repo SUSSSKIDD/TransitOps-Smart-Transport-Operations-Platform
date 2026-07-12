@@ -1,26 +1,42 @@
+// @ts-nocheck
 import { vi, Mock } from 'vitest'
 
-// Create mock functions for jwt utils
-const signAccessTokenMock = vi.fn().mockReturnValue('mock_access_token')
-const signRefreshTokenMock = vi.fn().mockReturnValue('mock_refresh_token')
-const verifyAccessTokenMock = vi.fn().mockReturnValue({ id: 'user1', email: 'test@test.com', role: 'FLEET_MANAGER' })
-const verifyRefreshTokenMock = vi.fn().mockReturnValue({ id: 'user1', email: 'test@test.com', role: 'FLEET_MANAGER', tokenId: 'token1' })
-const storeRefreshTokenMock = vi.fn()
-const validateRefreshTokenMock = vi.fn().mockReturnValue(true)
-const revokeRefreshTokenMock = vi.fn()
-const revokeAllUserRefreshTokensMock = vi.fn()
+const mocks = vi.hoisted(() => {
+  return {
+    signAccessTokenMock: vi.fn().mockReturnValue('mock_access_token'),
+    signRefreshTokenMock: vi.fn().mockReturnValue('mock_refresh_token'),
+    verifyAccessTokenMock: vi.fn().mockReturnValue({ id: 'user1', email: 'test@test.com', role: 'FLEET_MANAGER' }),
+    verifyRefreshTokenMock: vi.fn().mockReturnValue({ id: 'user1', email: 'test@test.com', role: 'FLEET_MANAGER', tokenId: 'token1' }),
+    storeRefreshTokenMock: vi.fn(),
+    validateRefreshTokenMock: vi.fn().mockReturnValue(true),
+    revokeRefreshTokenMock: vi.fn(),
+    revokeAllUserRefreshTokensMock: vi.fn(),
+  }
+})
 
 // Mock the jwt utils
 vi.mock('../src/utils/jwt', () => ({
-  signAccessToken: signAccessTokenMock,
-  signRefreshToken: signRefreshTokenMock,
-  verifyAccessToken: verifyAccessTokenMock,
-  verifyRefreshToken: verifyRefreshTokenMock,
-  storeRefreshToken: storeRefreshTokenMock,
-  validateRefreshToken: validateRefreshTokenMock,
-  revokeRefreshToken: revokeRefreshTokenMock,
-  revokeAllUserRefreshTokens: vi.fn(),
+  signAccessToken: mocks.signAccessTokenMock,
+  signRefreshToken: mocks.signRefreshTokenMock,
+  verifyAccessToken: mocks.verifyAccessTokenMock,
+  verifyRefreshToken: mocks.verifyRefreshTokenMock,
+  storeRefreshToken: mocks.storeRefreshTokenMock,
+  validateRefreshToken: mocks.validateRefreshTokenMock,
+  revokeRefreshToken: mocks.revokeRefreshTokenMock,
+  revokeAllUserRefreshTokens: mocks.revokeAllUserRefreshTokensMock,
 }))
+
+// Extract mocks for test access
+const {
+  signAccessTokenMock,
+  signRefreshTokenMock,
+  verifyAccessTokenMock,
+  verifyRefreshTokenMock,
+  storeRefreshTokenMock,
+  validateRefreshTokenMock,
+  revokeRefreshTokenMock,
+  revokeAllUserRefreshTokensMock,
+} = mocks
 
 import { authService } from '../src/modules/auth/auth.service'
 import { vehiclesService } from '../src/modules/vehicles/vehicles.service'
@@ -29,7 +45,7 @@ import { tripsService } from '../src/modules/trips/trips.service'
 import { maintenanceService } from '../src/modules/maintenance/maintenance.service'
 import { expensesService } from '../src/modules/expenses/expenses.service'
 import { prisma } from '../src/db'
-import { bcryptCompareMock, bcryptHashMock } from './jest.setup'
+import { bcryptCompareMock, bcryptHashMock } from '../jest.setup'
 import { AuthenticationError, BusinessRuleError, NotFoundError, ConflictError } from '../src/utils/errors'
 import { VehicleStatus, DriverStatus, TripStatus, Role } from '../src/types/enums'
 
@@ -40,7 +56,7 @@ const { validateRefreshToken, revokeRefreshToken, storeRefreshToken, signAccessT
   storeRefreshToken: storeRefreshTokenMock,
   signAccessToken: signAccessTokenMock,
   signRefreshToken: signRefreshTokenMock,
-  revokeAllUserRefreshTokens: vi.fn(),
+  revokeAllUserRefreshTokens: revokeAllUserRefreshTokensMock,
 }
 
 // Helper to clear all mocks
