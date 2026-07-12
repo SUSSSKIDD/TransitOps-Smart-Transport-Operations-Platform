@@ -3,12 +3,16 @@ import cors from 'cors'
 import helmet from 'helmet'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
+import csrf from 'csurf'
 import { env } from './config/env'
 import { logger } from './utils/logger'
 import { setupGracefulShutdown } from './shutdown'
 import { requestId } from './middleware/requestId'
 import { morganMiddleware } from './middleware/morgan'
 import { errorMiddleware } from './middleware/error.middleware'
+import { prisma } from './db'
+import { DriverStatus } from './types/enums'
+import { LICENSE_EXPIRY_WARNING_DAYS } from './config/constants'
 
 // Routers
 import authRoutes from './modules/auth/auth.routes'
@@ -33,7 +37,30 @@ app.use(
     credentials: true,
   })
 )
-app.use(express.json())
+// Limit request body size to prevent DoS
+app.use(express.json({ limit: '1mb' }))
+
+// CSRF protection for cookie-based auth (skip for login/refresh)
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    secure: env.COOKIE_SECURE,
+    sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax',
+  },
+})
+
+app.use((req, res, next) => {
+  // Skip CSRF for auth endpoints that use refresh token rotation
+  if (req.path.startsWith('/api/v1/auth/login') || req.path.startsWith('/api/v1/auth/refresh')) {
+    return next()
+  }
+  csrfProtection(req, res, next)
+})
+
+// Expose CSRF token to client
+app.get('/api/v1/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() })
+})
 
 // ── Swagger UI (Dev Only) ─────────────────────────────────────────────
 if (env.NODE_ENV !== 'production') {
@@ -62,6 +89,63 @@ app.use(errorMiddleware)
 // ── Start Server ──────────────────────────────────────────────────────
 const server = app.listen(env.PORT, () => {
   logger.info(`Server running in ${env.NODE_ENV} mode on port ${env.PORT}`)
+  
+  // Start license expiry warning job in production
+  if (env.NODE_ENV === 'production') {
+    startLicenseExpiryJob()
+  }
 })
+
+// License expiry warning job - runs daily at midnight
+function startLicenseExpiryJob() {
+  const runCheck = async () => {
+    try {
+      const warningDate = new Date()
+      warningDate.setDate(warningDate.getDate() + LICENSE_EXPIRY_WARNING_DAYS)
+      
+      const expiringDrivers = await prisma.driver.findMany({
+        where: {
+          licenseExpiryDate: {
+            lte: warningDate,
+            gte: new Date(), // Not already expired
+          },
+          status: { not: DriverStatus.SUSPENDED },
+        },
+        select: { id: true, name: true, licenseNumber: true, licenseExpiryDate: true, email: true },
+      })
+      
+      if (expiringDrivers.length > 0) {
+        logger.warn('AUDIT: license_expiry_warning', {
+          event: 'license_expiry_warning',
+          count: expiringDrivers.length,
+          drivers: expiringDrivers.map(d => ({
+            id: d.id,
+            name: d.name,
+            licenseNumber: d.licenseNumber,
+            expiresAt: d.licenseExpiryDate.toISOString(),
+          })),
+        })
+      }
+    } catch (error) {
+      logger.error('License expiry check failed', { error: (error as Error).message })
+    }
+  }
+  
+  // Run immediately on startup
+  runCheck()
+  
+  // Schedule daily at midnight
+  const now = new Date()
+  const midnight = new Date(now)
+  midnight.setHours(24, 0, 0, 0)
+  const msUntilMidnight = midnight.getTime() - now.getTime()
+  
+  setTimeout(() => {
+    runCheck()
+    setInterval(runCheck, 24 * 60 * 60 * 1000) // Every 24 hours
+  }, msUntilMidnight)
+  
+  logger.info('License expiry warning job started')
+}
 
 setupGracefulShutdown(server)

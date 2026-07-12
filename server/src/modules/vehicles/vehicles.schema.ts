@@ -25,7 +25,7 @@ export const UpdateVehicleSchema = {
     odometer: z.number().min(0).optional(),
     acquisitionCost: z.number().positive().optional(),
     region: optionalTrimmedString(),
-    status: VehicleStatusEnum.optional(),
+    // status is intentionally excluded - use /retire endpoint for status changes
   }),
 }
 

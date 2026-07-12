@@ -1,6 +1,9 @@
 // ── Auth ──────────────────────────────────────────────────────────────
-export const JWT_COOKIE_NAME          = 'transitops_token'
-export const COOKIE_MAX_AGE           = 7 * 24 * 60 * 60 * 1000  // 7 days in ms
+export const ACCESS_TOKEN_COOKIE_NAME  = 'transitops_access'
+export const REFRESH_TOKEN_COOKIE_NAME = 'transitops_refresh'
+export const ACCESS_TOKEN_MAX_AGE      = 15 * 60 * 1000          // 15 minutes
+export const REFRESH_TOKEN_MAX_AGE     = 7 * 24 * 60 * 60 * 1000 // 7 days
+export const REFRESH_TOKEN_REUSE_WINDOW = 30 * 1000              // 30 seconds grace for rotation
 
 // ── Pagination ────────────────────────────────────────────────────────
 export const DEFAULT_PAGE_SIZE        = 20

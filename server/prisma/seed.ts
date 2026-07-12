@@ -1,18 +1,25 @@
 import { Role, VehicleStatus, DriverStatus, TripStatus } from '../src/types/enums';
 import { PrismaClient } from '@prisma/client'
-
-
-
-
 import bcrypt from 'bcryptjs'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
+
+// Generate secure random password for demo users
+const generatePassword = () => `Demo-${uuidv4().slice(0, 8)}!`
 
 export async function seed() {
   console.log('🌱 Seeding database...')
 
   // ── Users ─────────────────────────────────────────────────────────────
-  const passwordHash = await bcrypt.hash('Password123!', 10)
+  const demoPassword = process.env.DEMO_PASSWORD || generatePassword()
+  const passwordHash = await bcrypt.hash(demoPassword, 10)
+
+  if (process.env.DEMO_PASSWORD) {
+    console.log('⚠️  Using DEMO_PASSWORD from environment')
+  } else {
+    console.log(`🔐 Demo password generated: ${demoPassword}`)
+  }
 
   const [fleetManager, driver, safety, finance] = await Promise.all([
     prisma.user.upsert({
@@ -267,10 +274,13 @@ export async function seed() {
   console.log('✅ Maintenance logs seeded: 1 closed (Van-05), 1 active (Van-02 IN_SHOP)')
 
   console.log('\n🎉 Seed complete! Demo logins:')
-  console.log('  fleetmanager@transitops.com  |  Password123!')
-  console.log('  driver@transitops.com        |  Password123!')
-  console.log('  safety@transitops.com        |  Password123!')
-  console.log('  finance@transitops.com       |  Password123!')
+  console.log('  fleetmanager@transitops.com  |  (check console above for password)')
+  console.log('  driver@transitops.com        |  (same password)')
+  console.log('  safety@transitops.com        |  (same password)')
+  console.log('  finance@transitops.com       |  (same password)')
+  if (!process.env.DEMO_PASSWORD) {
+    console.log(`\n🔐 Generated password: ${demoPassword}`)
+  }
 }
 
 seed()

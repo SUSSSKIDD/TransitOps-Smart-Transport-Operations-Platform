@@ -19,19 +19,40 @@ export const vehiclesService = {
     return vehicleRepo.findDispatchable()
   },
 
-  async create(input: CreateVehicleInput, actorId: string) {
+  async create(input: CreateVehicleInput, actorId: string, requestId?: string) {
     const existing = await vehicleRepo.findByRegNum(input.registrationNumber)
     if (existing) throw new ConflictError('A vehicle with this registration number already exists')
     
-    return vehicleRepo.create(input)
+    const vehicle = await vehicleRepo.create(input)
+
+    logger.info('AUDIT: vehicle_created', {
+      event: 'vehicle_created',
+      vehicleId: vehicle.id,
+      actorId,
+      requestId,
+      timestamp: new Date().toISOString(),
+    })
+
+    return vehicle
   },
 
-  async update(id: string, input: UpdateVehicleInput, actorId: string) {
+  async update(id: string, input: UpdateVehicleInput, actorId: string, requestId?: string) {
     await this.getById(id)
-    return vehicleRepo.update(id, input)
+    const vehicle = await vehicleRepo.update(id, input)
+
+    logger.info('AUDIT: vehicle_updated', {
+      event: 'vehicle_updated',
+      vehicleId: id,
+      actorId,
+      requestId,
+      changes: input,
+      timestamp: new Date().toISOString(),
+    })
+
+    return vehicle
   },
 
-  async retire(id: string, actorId: string) {
+  async retire(id: string, actorId: string, requestId?: string) {
     const vehicle = await this.getById(id)
     if (vehicle.status === VehicleStatus.RETIRED) return vehicle
     
@@ -41,6 +62,8 @@ export const vehiclesService = {
       event: 'vehicle_retired',
       vehicleId: id,
       actorId,
+      requestId,
+      timestamp: new Date().toISOString(),
     })
     
     return updated

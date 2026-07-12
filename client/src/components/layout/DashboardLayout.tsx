@@ -12,9 +12,24 @@ import {
   Wrench, 
   DollarSign, 
   LogOut,
-  Menu,
-  X
+  Menu
 } from "lucide-react"
+
+type NavItem = {
+  name: string
+  href: string
+  icon: React.ReactNode
+  roles: string[]
+}
+
+const ALL_NAVIGATION: NavItem[] = [
+  { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} />, roles: ["FLEET_MANAGER", "DRIVER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"] },
+  { name: "Trips", href: "/trips", icon: <Truck size={18} />, roles: ["FLEET_MANAGER", "DRIVER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"] },
+  { name: "Vehicles", href: "/vehicles", icon: <Bus size={18} />, roles: ["FLEET_MANAGER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"] },
+  { name: "Drivers", href: "/drivers", icon: <Users size={18} />, roles: ["FLEET_MANAGER", "SAFETY_OFFICER"] },
+  { name: "Maintenance", href: "/maintenance", icon: <Wrench size={18} />, roles: ["FLEET_MANAGER"] },
+  { name: "Expenses", href: "/expenses", icon: <DollarSign size={18} />, roles: ["FLEET_MANAGER", "DRIVER", "FINANCIAL_ANALYST"] },
+]
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -43,14 +58,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     )
   }
 
-  const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Trips", href: "/trips", icon: Truck },
-    { name: "Vehicles", href: "/vehicles", icon: Bus },
-    { name: "Drivers", href: "/drivers", icon: Users },
-    { name: "Maintenance", href: "/maintenance", icon: Wrench },
-    { name: "Expenses", href: "/expenses", icon: DollarSign },
-  ]
+  // Filter navigation based on user role
+  const navigation = ALL_NAVIGATION.filter(item => item.roles.includes(user.role))
 
   const handleLogout = async () => {
     await logout()
@@ -94,7 +103,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800/50"}
                   `}
                 >
-                  <item.icon className={`mr-3 h-5 w-5 ${isActive ? "text-blue-700 dark:text-blue-400" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"}`} />
+                  <span className={`mr-3 h-5 w-5 ${isActive ? "text-blue-700 dark:text-blue-400" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"}`}>
+                    {item.icon}
+                  </span>
                   {item.name}
                 </Link>
               )
@@ -108,7 +119,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.name}</p>
-                <p className="text-xs text-gray-500 truncate">{user.role}</p>
+                <p className="text-xs text-gray-500 truncate">{user.role.replace('_', ' ')}</p>
               </div>
             </div>
             <button

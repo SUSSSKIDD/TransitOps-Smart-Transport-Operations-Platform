@@ -11,7 +11,7 @@ export const maintenanceService = {
     return maintenanceRepo.findMany(query)
   },
 
-  async create(input: CreateMaintenanceInput, actorId: string) {
+  async create(input: CreateMaintenanceInput, actorId: string, requestId?: string) {
     // Rule 9: Open maintenance → Vehicle = IN_SHOP atomically
     return prisma.$transaction(async (tx) => {
       const vehicle = await vehicleRepo.findById(input.vehicleId, tx)
@@ -29,6 +29,7 @@ export const maintenanceService = {
         logId: log.id,
         cost: input.cost,
         actorId,
+        requestId,
         timestamp: new Date().toISOString(),
       })
 
@@ -36,19 +37,23 @@ export const maintenanceService = {
     })
   },
 
-  async close(id: string, actorId: string) {
+  async close(id: string, actorId: string, requestId?: string) {
     // Rule 10: Close maintenance → Vehicle = AVAILABLE (unless RETIRED)
+    // Re-verify vehicle status inside transaction to prevent race condition
     return prisma.$transaction(async (tx) => {
       const log = await maintenanceRepo.findById(id, tx)
       if (!log) throw new NotFoundError('Maintenance log')
       if (!log.isActive) throw new BusinessRuleError('Maintenance log is already closed')
 
+      // Re-fetch vehicle inside transaction to get latest status
       const vehicle = await vehicleRepo.findById(log.vehicleId, tx)
       if (!vehicle) throw new NotFoundError('Vehicle')
 
       const updatedLog = await maintenanceRepo.updateStatus(id, false, tx)
 
-      if (vehicle.status !== VehicleStatus.RETIRED) {
+      // Re-verify status hasn't changed to RETIRED since we fetched it
+      const currentVehicle = await vehicleRepo.findById(log.vehicleId, tx)
+      if (currentVehicle?.status !== VehicleStatus.RETIRED) {
         await vehicleRepo.updateStatus(log.vehicleId, VehicleStatus.AVAILABLE, tx)
       }
 
@@ -57,6 +62,7 @@ export const maintenanceService = {
         vehicleId: log.vehicleId,
         logId: id,
         actorId,
+        requestId,
         timestamp: new Date().toISOString(),
       })
 

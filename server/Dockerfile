@@ -44,8 +44,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/scripts ./scripts
 
-# Run migrations/seed at startup or just start the app
-# (In production, usually you don't reset DB on every start, but we can do a push)
-CMD ["sh", "-c", "npx prisma db push && npm run start"]
+# Run migrations at startup, then start the app
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
 
 EXPOSE 4000

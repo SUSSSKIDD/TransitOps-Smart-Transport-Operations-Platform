@@ -5,8 +5,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { DriverForm } from "@/components/forms/DriverForm"
 import { api } from "@/lib/axios"
-import { Plus, UserX } from "lucide-react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
 
@@ -49,9 +49,7 @@ export default function DriversPage() {
             <h1 className="text-3xl font-bold tracking-tight">Drivers</h1>
             <p className="text-muted-foreground">Manage driver profiles and status.</p>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-            <Plus className="mr-2 h-4 w-4" /> Add Driver
-          </Button>
+          <DriverForm onSuccess={fetchDrivers} />
         </div>
 
         <Card className="border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
@@ -110,7 +108,7 @@ export default function DriversPage() {
                           <td className="px-4 py-3 text-right">
                             {driver.status !== "SUSPENDED" && (
                               <Button size="sm" variant="ghost" onClick={() => handleSuspend(driver.id, driver.name)} className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30">
-                                <UserX className="w-4 h-4 mr-1" /> Suspend
+                                Suspend
                               </Button>
                             )}
                           </td>

@@ -5,8 +5,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { MaintenanceForm } from "@/components/forms/MaintenanceForm"
 import { api } from "@/lib/axios"
-import { Plus, CheckCircle } from "lucide-react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
 
@@ -49,9 +49,7 @@ export default function MaintenancePage() {
             <h1 className="text-3xl font-bold tracking-tight">Maintenance</h1>
             <p className="text-muted-foreground">Track vehicle repairs and shop time.</p>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-            <Plus className="mr-2 h-4 w-4" /> Log Repair
-          </Button>
+          <MaintenanceForm onSuccess={fetchLogs} />
         </div>
 
         <Card className="border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
@@ -103,7 +101,7 @@ export default function MaintenancePage() {
                           <td className="px-4 py-3 text-right">
                             {log.isActive && (
                               <Button size="sm" onClick={() => handleClose(log.id, log.description)} className="bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400">
-                                <CheckCircle className="w-4 h-4 mr-1" /> Resolve
+                                Resolve
                               </Button>
                             )}
                           </td>

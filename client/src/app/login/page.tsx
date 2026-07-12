@@ -8,13 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import toast from "react-hot-toast"
-import { Bus, Lock, Mail } from "lucide-react"
+import { Bus, Lock, Mail, AlertCircle } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuthStore()
-  const [email, setEmail] = useState("fleetmanager@transitops.com")
-  const [password, setPassword] = useState("Password123!")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -59,6 +59,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -72,6 +73,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                 />
               </div>
             </div>
@@ -85,8 +87,9 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex justify-center pb-8">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Demo credentials are pre-filled
+          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+            <AlertCircle className="h-4 w-4" />
+            Contact your administrator for credentials
           </p>
         </CardFooter>
       </Card>

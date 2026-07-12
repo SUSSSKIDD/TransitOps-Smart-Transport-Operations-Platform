@@ -4,8 +4,8 @@ import { useEffect, useState } from "react"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { FuelLogForm } from "@/components/forms/FuelLogForm"
 import { api } from "@/lib/axios"
-import { Plus, Droplet, FileText } from "lucide-react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
 
@@ -42,12 +42,7 @@ export default function ExpensesPage() {
             <p className="text-muted-foreground">Track fuel consumption and operational expenses.</p>
           </div>
           <div className="space-x-3">
-            <Button variant="outline" className="bg-white dark:bg-zinc-950 shadow-sm">
-              <Droplet className="mr-2 h-4 w-4 text-blue-500" /> Log Fuel
-            </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-              <Plus className="mr-2 h-4 w-4" /> Add Expense
-            </Button>
+            <FuelLogForm onSuccess={fetchData} />
           </div>
         </div>
 
@@ -55,10 +50,7 @@ export default function ExpensesPage() {
           {/* Fuel Logs */}
           <Card className="border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Droplet className="mr-2 h-5 w-5 text-blue-500" /> 
-                Fuel Logs
-              </CardTitle>
+              <CardTitle>Fuel Logs</CardTitle>
               <CardDescription>Recent refueling records across the fleet</CardDescription>
             </CardHeader>
             <CardContent>
@@ -90,10 +82,7 @@ export default function ExpensesPage() {
           {/* Other Expenses */}
           <Card className="border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="mr-2 h-5 w-5 text-amber-500" /> 
-                Operational Expenses
-              </CardTitle>
+              <CardTitle>Operational Expenses</CardTitle>
               <CardDescription>Tolls, permits, fines, and other costs</CardDescription>
             </CardHeader>
             <CardContent>

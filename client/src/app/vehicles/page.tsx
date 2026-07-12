@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/axios"
-import { Plus, Settings, Archive } from "lucide-react"
+import { Plus, Settings, Archive, Edit } from "lucide-react"
 import toast from "react-hot-toast"
+import { VehicleForm } from "@/components/forms/VehicleForm"
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<any[]>([])
@@ -48,9 +49,7 @@ export default function VehiclesPage() {
             <h1 className="text-3xl font-bold tracking-tight">Vehicles</h1>
             <p className="text-muted-foreground">Manage your fleet inventory and status.</p>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-            <Plus className="mr-2 h-4 w-4" /> Add Vehicle
-          </Button>
+          <VehicleForm onSuccess={fetchVehicles} />
         </div>
 
         <Card className="border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
@@ -103,8 +102,18 @@ export default function VehiclesPage() {
                             <div>Capacity: {vehicle.maxLoadCapacityKg} kg</div>
                           </td>
                           <td className="px-4 py-3 text-right">
+                            <VehicleForm 
+                              onSuccess={fetchVehicles} 
+                              initialData={vehicle} 
+                              isEditing
+                            />
                             {vehicle.status !== "RETIRED" && (
-                              <Button size="sm" variant="ghost" onClick={() => handleRetire(vehicle.id, vehicle.name)} className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                onClick={() => handleRetire(vehicle.id, vehicle.name)} 
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                              >
                                 <Archive className="w-4 h-4 mr-1" /> Retire
                               </Button>
                             )}

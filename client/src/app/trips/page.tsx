@@ -5,8 +5,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { TripForm } from "@/components/forms/TripForm"
 import { api } from "@/lib/axios"
-import { Plus, Check, Play, XCircle } from "lucide-react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
 
@@ -62,9 +62,7 @@ export default function TripsPage() {
             <h1 className="text-3xl font-bold tracking-tight">Trips</h1>
             <p className="text-muted-foreground">Manage and track all fleet dispatches.</p>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-            <Plus className="mr-2 h-4 w-4" /> New Trip
-          </Button>
+          <TripForm onSuccess={fetchTrips} />
         </div>
 
         <Card className="border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
@@ -120,12 +118,12 @@ export default function TripsPage() {
                           <td className="px-4 py-3 text-right">
                             {trip.status === "DRAFT" && (
                               <Button size="sm" onClick={() => handleDispatch(trip.id)} className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400">
-                                <Play className="w-4 h-4 mr-1" /> Dispatch
+                                Dispatch
                               </Button>
                             )}
                             {trip.status === "DISPATCHED" && (
                               <Button size="sm" onClick={() => handleComplete(trip.id, trip)} className="bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400">
-                                <Check className="w-4 h-4 mr-1" /> Complete
+                                Complete
                               </Button>
                             )}
                           </td>
